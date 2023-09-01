@@ -1,36 +1,41 @@
 package core
 
 import (
+	"encoding/json"
 	"fmt"
 	"go_mutateur/src/listener"
+	"go_mutateur/src/prompter"
+	"go_mutateur/src/udp"
 	"net"
-	"syscall"
 
-	"gobot.io/x/gobot/platforms/keyboard"
+	hook "github.com/robotn/gohook"
 )
+
+var clientIndex int
 
 func handlerServer(udpServer net.PacketConn, addr net.Addr, buf []byte) {
 	fmt.Println("recus:", string(buf))
 }
 
-func keyboardEventHandler(data interface{}) {
-	key := data.(keyboard.KeyEvent)
-	if key.Key == keyboard.Escape {
-		//kill robot
-		syscall.Kill(syscall.Getpid(), syscall.SIGINT)
-	} else {
-		fmt.Println("keyboard event!", key, key.Char)
+func keyboardEventHandler(ev hook.Event) {
+	fmt.Println("keyboard event:", ev)
+	toSend, err := json.Marshal(ev)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
 	}
+	udp.SendToClient(string(toSend), clientIndex-1)
 }
 
 func CoreServer() {
-	//First wait for client connection
-	//udp.CreateServer(handlerServer)
-	listener.GetKeyboardEvent(keyboardEventHandler) //dont work if relauch do everywith in double
-	//in a for with condition: if response in prompt is exit exit loop and programme
-	//when first client is connected display prompt to select wich computer need to be controlled
-	//make for loop with keyboard event and mouse event to get keyboard input
-	//if escape is pressed exit loop
-	//send input to selected client
-	//close udp server
+	udp.CreateServer(handlerServer)
+	for {
+		client := udp.GetAllClientInfo()
+		clientIndex = prompter.Select("Switch on client:", client)
+		if clientIndex == 0 {
+			break
+		}
+		listener.Event(keyboardEventHandler)
+	}
+	//udp.Close()
 }

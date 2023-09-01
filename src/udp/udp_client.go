@@ -36,11 +36,12 @@ func CreateConnection() *net.UDPConn {
 func Receive(wg *sync.WaitGroup, handler func([]byte)) {
 	for {
 		received := make([]byte, 1024)
-		_, err := conn.Read(received)
+		len, err := conn.Read(received)
 		if err != nil {
 			println("Read data failed:", err.Error())
 			break
 		}
+		received = received[:len]
 		handler(received)
 	}
 	if wg != nil {

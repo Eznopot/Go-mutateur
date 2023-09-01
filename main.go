@@ -9,9 +9,11 @@ import (
 func main() {
 	args := os.Args
 	if len(args) == 2 && args[1] == "server" {
+		println("server mode")
 		core.CoreServer()
 		return
 	} else if len(args) == 2 && args[1] == "client" {
+		println("client mode")
 		core.CoreClient()
 		return
 	}

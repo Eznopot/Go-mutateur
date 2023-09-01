@@ -66,7 +66,7 @@ func SendToClient(str string, index int) {
 	if instance == nil {
 		CreateServer(nil)
 	}
-	(*instance).WriteTo([]byte(str), *addrs[index])
+	(*instance).WriteTo([]byte(str), *(addrs[index]))
 }
 
 func GetAllClientInfo() []string {
