@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/go-vgo/robotgo"
 	hook "github.com/robotn/gohook"
 )
 
@@ -25,6 +26,19 @@ func Do(eventString string) {
 	if err != nil {
 		fmt.Println("error:", err)
 		return
+	}
+	if event.Kind == hook.KeyDown {
+		robotgo.KeyTap(string(event.Keychar))
+	} else if event.Kind == hook.MouseDown {
+		var clickAction string
+		if event.Button == 1 {
+			clickAction = "left"
+		} else if event.Button == 2 {
+			clickAction = "right"
+		}
+		robotgo.Click(clickAction)
+	} else if event.Kind == hook.MouseWheel {
+		robotgo.Scroll(int(event.X), int(event.Y))
 	}
 	fmt.Println("keyboard event:", event)
 }
