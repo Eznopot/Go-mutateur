@@ -39,6 +39,10 @@ func Do(eventString string) {
 		robotgo.Click(clickAction)
 	} else if event.Kind == hook.MouseWheel {
 		robotgo.Scroll(int(event.X), int(event.Y))
+	} else if event.Kind == hook.MouseDrag {
+		robotgo.DragSmooth(int(event.X), int(event.Y))
+	} else if event.Kind == hook.MouseMove {
+		robotgo.Move(int(event.X), int(event.Y))
 	}
 	fmt.Println("keyboard event:", event)
 }
