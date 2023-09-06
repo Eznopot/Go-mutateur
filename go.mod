@@ -28,4 +28,5 @@ require (
 	github.com/hashicorp/go-multierror v1.0.0 // indirect
 	github.com/vcaesar/keycode v0.10.1 // indirect
 	gobot.io/x/gobot v1.16.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0
 )

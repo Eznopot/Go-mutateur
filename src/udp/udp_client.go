@@ -1,6 +1,7 @@
 package udp
 
 import (
+	"fmt"
 	"net"
 	"os"
 	"sync"
@@ -8,9 +9,10 @@ import (
 
 var conn *net.UDPConn
 
-func CreateConnection() *net.UDPConn {
+func CreateConnection(address, port string) *net.UDPConn {
+	fmt.Println("Start new connection...")
 	once.Do(func() {
-		udpServer, err := net.ResolveUDPAddr("udp", ":1053")
+		udpServer, err := net.ResolveUDPAddr("udp", address+":"+port)
 
 		if err != nil {
 			println("ResolveUDPAddr failed:", err.Error())

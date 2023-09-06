@@ -26,16 +26,17 @@ func listener(wg *sync.WaitGroup, handler func(net.PacketConn, net.Addr, []byte)
 	}
 }
 
-func CreateServer(handler func(net.PacketConn, net.Addr, []byte)) (*net.PacketConn, *sync.WaitGroup) {
+func CreateServer(port string, handler func(net.PacketConn, net.Addr, []byte)) (*net.PacketConn, *sync.WaitGroup) {
 	var wg sync.WaitGroup
 	once.Do(func() {
-		udpServer, err := net.ListenPacket("udp", ":1053")
+		udpServer, err := net.ListenPacket("udp", ":"+port)
 		if err != nil {
 			log.Fatal(err)
 		}
 		instance = &udpServer
 
 		//wait for the first connection
+		fmt.Println("Waiting for the first connection...")
 		buf := make([]byte, 1024)
 		_, addr, err := (*instance).ReadFrom(buf)
 		var tmp []*net.Addr
@@ -55,7 +56,8 @@ func CreateServer(handler func(net.PacketConn, net.Addr, []byte)) (*net.PacketCo
 
 func SendToAllClient(str string) {
 	if instance == nil {
-		CreateServer(nil)
+		log.Fatal("instance of UDP server is null")
+		return
 	}
 	for _, addr := range addrs {
 		(*instance).WriteTo([]byte(str), *addr)
@@ -64,7 +66,8 @@ func SendToAllClient(str string) {
 
 func SendToClient(str string, index int) {
 	if instance == nil {
-		CreateServer(nil)
+		log.Fatal("instance of UDP server is null")
+		return
 	}
 	(*instance).WriteTo([]byte(str), *(addrs[index]))
 }

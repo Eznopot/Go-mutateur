@@ -3,6 +3,7 @@ package listener
 import (
 	"encoding/json"
 	"fmt"
+	"go_mutateur/src/config"
 
 	"github.com/go-vgo/robotgo"
 	hook "github.com/robotn/gohook"
@@ -42,7 +43,10 @@ func Do(eventString string) {
 	} else if event.Kind == hook.MouseDrag {
 		robotgo.DragSmooth(int(event.X), int(event.Y))
 	} else if event.Kind == hook.MouseMove {
-		robotgo.Move(int(event.X), int(event.Y))
+		if config.GetConfig().Config.SmoothMode {
+			robotgo.MoveSmooth(int(event.X), int(event.Y), 0.1, 3.0, config.GetConfig().Config.SmoothDelay)
+		} else {
+			robotgo.Move(int(event.X), int(event.Y))
+		}
 	}
-	fmt.Println("keyboard event:", event)
 }
