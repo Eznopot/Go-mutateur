@@ -23,6 +23,7 @@ type clientConf struct {
 type config struct {
 	SmoothMode  bool `yaml:"smooth_mode"`
 	SmoothDelay int  `yaml:"smooth_delay"`
+	ScrollSpeed int  `yaml:"scroll_speed"`
 }
 
 type conf struct {

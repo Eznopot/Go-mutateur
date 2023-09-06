@@ -3,8 +3,10 @@ server:
 
 client:
   port: 8082
-  address:  192.168.0.37
+  address: 192.168.0.37
 
 config:
   smooth_mode: true
   smooth_delay: 0
+
+  scroll_speed: 1
