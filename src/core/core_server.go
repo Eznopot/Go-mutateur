@@ -18,12 +18,18 @@ var clientIndex int
 // value.
 //
 // Args:
-//   udpServer: udpServer is a variable of type net.PacketConn, which represents a connection for
+//
+//	udpServer: udpServer is a variable of type net.PacketConn, which represents a connection for
+//
 // sending and receiving UDP packets. It is used to send and receive packets over a UDP network
 // connection.
-//   addr: The `addr` parameter is the network address of the remote client that sent the UDP packet.
+//
+//	addr: The `addr` parameter is the network address of the remote client that sent the UDP packet.
+//
 // It contains information such as the IP address and port number of the client.
-//   buf ([]byte): The `buf` parameter is a byte slice that represents the data received from the UDP
+//
+//	buf ([]byte): The `buf` parameter is a byte slice that represents the data received from the UDP
+//
 // server.
 func handlerServer(udpServer net.PacketConn, addr net.Addr, buf []byte) {
 	fmt.Println("recus:", string(buf))
@@ -32,7 +38,8 @@ func handlerServer(udpServer net.PacketConn, addr net.Addr, buf []byte) {
 // The function `keyboardEventHandler` sends a keyboard event to a client over UDP.
 //
 // Args:
-//   ev: The parameter "ev" is of type hook.Event. It represents the keyboard event that occurred.
+//
+//	ev: The parameter "ev" is of type hook.Event. It represents the keyboard event that occurred.
 func keyboardEventHandler(ev hook.Event) {
 	toSend, err := json.Marshal(ev)
 	if err != nil {
@@ -46,7 +53,8 @@ func keyboardEventHandler(ev hook.Event) {
 // clients via UDP.
 //
 // Args:
-//   ev: The parameter "ev" is of type hook.Event. It represents the keyboard event that occurred.
+//
+//	ev: The parameter "ev" is of type hook.Event. It represents the keyboard event that occurred.
 func keyboardEventHandlerForAll(ev hook.Event) {
 	toSend, err := json.Marshal(ev)
 	if err != nil {
@@ -65,13 +73,15 @@ func CoreServer() {
 		client = append(client, "All")
 		client = append(client, "Exit")
 		clientIndex = prompter.Select("Switch on client:", client)
-		if clientIndex == len(client)-1 {
+		if clientIndex == -1 {
+			continue
+		} else if clientIndex == len(client) {
 			break
-		} else if clientIndex == len(client)-2 {
-			listener.Event(keyboardEventHandler)
-		} else {
+		} else if clientIndex == len(client)-1 {
 			listener.Event(keyboardEventHandlerForAll)
+		} else {
+			listener.Event(keyboardEventHandler)
 		}
 	}
-	udp.Close()
+	udp.CloseServer()
 }

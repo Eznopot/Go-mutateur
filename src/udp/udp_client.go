@@ -51,6 +51,10 @@ func Receive(wg *sync.WaitGroup, handler func([]byte)) {
 	}
 }
 
-func Close() {
+func CloseServer() {
+	defer (*instance).Close()
+}
+
+func CloseConnection() {
 	defer conn.Close()
 }
