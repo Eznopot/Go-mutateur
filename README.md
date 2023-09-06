@@ -50,4 +50,4 @@ N'hésitez pas a faire des retour sur les possible bug et amélioration a apport
 
 ## BUG connu
 
-Scroll et drag ne marche pas encore.
+Drag ne marche pas encore.
