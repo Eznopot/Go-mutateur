@@ -1,8 +1,9 @@
-package udp
+package udp_client
 
 import (
 	"encoding/json"
 	"fmt"
+	"go_mutateur/src/udp"
 	"log"
 	"net"
 	"sync"
@@ -10,6 +11,7 @@ import (
 
 var conn *net.UDPConn
 var isConnClose = false
+var once sync.Once
 
 func CreateConnection(address, port string) *net.UDPConn {
 	fmt.Println("Start new connection...")
@@ -26,7 +28,7 @@ func CreateConnection(address, port string) *net.UDPConn {
 		}
 		conn = connection
 		//send first message for handshake
-		handshake := Packet{
+		handshake := udp.Packet{
 			Data: "handshake",
 			Type: "system",
 		}
@@ -52,8 +54,8 @@ func clientPacketSystemHandler(data string) int {
 	}
 }
 
-func readFromConn() (Packet, error) {
-	var packet Packet
+func readFromConn() (udp.Packet, error) {
+	var packet udp.Packet
 	received := make([]byte, 2048)
 	len, err := conn.Read(received)
 	if isConnClose {
@@ -71,7 +73,7 @@ func readFromConn() (Packet, error) {
 	return packet, nil
 }
 
-func Receive(wg *sync.WaitGroup, handler func(Packet)) {
+func Receive(wg *sync.WaitGroup, handler func(udp.Packet)) {
 	for !isConnClose {
 		packet, err := readFromConn()
 		if isConnClose {
@@ -93,7 +95,7 @@ func Receive(wg *sync.WaitGroup, handler func(Packet)) {
 }
 
 func CloseConnection() {
-	packet := Packet{
+	packet := udp.Packet{
 		Data: "close",
 		Type: "system",
 	}

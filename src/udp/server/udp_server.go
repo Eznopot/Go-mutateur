@@ -1,8 +1,9 @@
-package udp
+package udp_server
 
 import (
 	"encoding/json"
 	"fmt"
+	"go_mutateur/src/udp"
 	"log"
 	"net"
 	"sync"
@@ -39,7 +40,7 @@ func serverPacketSystemHandler(data string, addr *net.Addr) int {
 		return 0
 	}
 }
-func listener(wg *sync.WaitGroup, handler func(net.PacketConn, *net.Addr, Packet)) {
+func listener(wg *sync.WaitGroup, handler func(net.PacketConn, *net.Addr, udp.Packet)) {
 	defer wg.Done()
 	for !isServerClose {
 		packet, addr, err := readFromSocket()
@@ -59,8 +60,8 @@ func listener(wg *sync.WaitGroup, handler func(net.PacketConn, *net.Addr, Packet
 	}
 }
 
-func readFromSocket() (Packet, *net.Addr, error) {
-	var packet Packet
+func readFromSocket() (udp.Packet, *net.Addr, error) {
+	var packet udp.Packet
 	buf := make([]byte, 2048)
 	len, addr, err := (*instance).ReadFrom(buf)
 	if isServerClose {
@@ -74,7 +75,7 @@ func readFromSocket() (Packet, *net.Addr, error) {
 	return packet, &addr, nil
 }
 
-func CreateServer(port string, handler func(net.PacketConn, *net.Addr, Packet)) *sync.WaitGroup {
+func CreateServer(port string, handler func(net.PacketConn, *net.Addr, udp.Packet)) *sync.WaitGroup {
 	var wg sync.WaitGroup
 	once.Do(func() {
 		udpServer, err := net.ListenPacket("udp", ":"+port)
@@ -105,7 +106,7 @@ func SendToAllClient(str, packetType string) {
 		log.Fatal("instance of UDP server is null")
 		return
 	}
-	toSend := Packet{
+	toSend := udp.Packet{
 		Type: packetType,
 		Data: str,
 	}
@@ -124,7 +125,7 @@ func SendToClient(str, packetType string, index int) {
 		log.Fatal("instance of UDP server is null")
 		return
 	}
-	toSend := Packet{
+	toSend := udp.Packet{
 		Type: packetType,
 		Data: str,
 	}
