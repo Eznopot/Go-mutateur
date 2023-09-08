@@ -1,13 +1,15 @@
 package udp
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net"
-	"os"
 	"sync"
 )
 
 var conn *net.UDPConn
+var isConnClose = false
 
 func CreateConnection(address, port string) *net.UDPConn {
 	fmt.Println("Start new connection...")
@@ -15,46 +17,91 @@ func CreateConnection(address, port string) *net.UDPConn {
 		udpServer, err := net.ResolveUDPAddr("udp", address+":"+port)
 
 		if err != nil {
-			println("ResolveUDPAddr failed:", err.Error())
-			os.Exit(1)
+			log.Fatal("ResolveUDPAddr failed:", err.Error())
 		}
 
 		connection, err := net.DialUDP("udp", nil, udpServer)
 		if err != nil {
-			println("Listen failed:", err.Error())
-			os.Exit(1)
+			log.Fatal("Listen failed:", err.Error())
 		}
 		conn = connection
 		//send first message for handshake
-		_, err = conn.Write([]byte("handshake"))
+		handshake := Packet{
+			Data: "handshake",
+			Type: "system",
+		}
+		bytes, err := json.Marshal(handshake)
 		if err != nil {
-			println("Write data failed:", err.Error())
-			os.Exit(1)
+			log.Fatal("serialize failed:", err.Error())
+		}
+		_, err = conn.Write(bytes)
+		if err != nil {
+			log.Fatal("Write data failed:", err.Error())
 		}
 	})
 	return conn
 }
 
-func Receive(wg *sync.WaitGroup, handler func([]byte)) {
-	for {
-		received := make([]byte, 1024)
-		len, err := conn.Read(received)
-		if err != nil {
-			println("Read data failed:", err.Error())
+func clientPacketSystemHandler(data string) int {
+	switch data := data; data {
+	case "close":
+		CloseConnection()
+		return 1
+	default:
+		return 0
+	}
+}
+
+func readFromConn() (Packet, error) {
+	var packet Packet
+	received := make([]byte, 2048)
+	len, err := conn.Read(received)
+	if isConnClose {
+		return packet, nil
+	} else if err != nil {
+		println("Read data failed:", err.Error())
+		return packet, err
+	}
+	received = received[:len]
+	err = json.Unmarshal(received, &packet)
+	if err != nil {
+		log.Fatal("error on json:", err.Error())
+		return packet, err
+	}
+	return packet, nil
+}
+
+func Receive(wg *sync.WaitGroup, handler func(Packet)) {
+	for !isConnClose {
+		packet, err := readFromConn()
+		if isConnClose {
 			break
+		} else if err != nil {
+			continue
 		}
-		received = received[:len]
-		handler(received)
+		if packet.Type == "system" {
+			if clientPacketSystemHandler(packet.Data) == 1 {
+				return
+			}
+			continue
+		}
+		handler(packet)
 	}
 	if wg != nil {
 		wg.Done()
 	}
 }
 
-func CloseServer() {
-	defer (*instance).Close()
-}
-
 func CloseConnection() {
+	packet := Packet{
+		Data: "close",
+		Type: "system",
+	}
+	bytes, err := json.Marshal(packet)
+	if err != nil {
+		log.Fatal("error on json:", err.Error())
+	}
+	conn.Write(bytes)
+	isConnClose = true
 	defer conn.Close()
 }

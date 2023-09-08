@@ -40,10 +40,8 @@ func Do(eventString string) {
 		robotgo.Click(clickAction)
 	} else if event.Kind == hook.MouseWheel {
 		if event.Rotation > 0 {
-			println("scroll down")
 			robotgo.ScrollMouse(config.GetConfig().Config.ScrollSpeed, "down")
 		} else {
-			println("scroll up")
 			robotgo.ScrollMouse(-config.GetConfig().Config.ScrollSpeed, "up")
 		}
 	} else if event.Kind == hook.MouseDrag {
