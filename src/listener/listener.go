@@ -29,7 +29,9 @@ func Do(eventString string) {
 		return
 	}
 	if event.Kind == hook.KeyDown {
-		robotgo.KeyTap(string(event.Keychar))
+		robotgo.KeyDown(string(event.Keychar))
+	} else if event.Kind == hook.KeyUp {
+		robotgo.KeyUp(string(event.Keychar))
 	} else if event.Kind == hook.MouseDown {
 		var clickAction string
 		if event.Button == 1 {

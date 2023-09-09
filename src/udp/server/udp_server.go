@@ -12,7 +12,7 @@ import (
 var instance *net.PacketConn
 var addrs []*net.Addr
 var isServerClose = false
-
+var logger func(string)
 var once sync.Once
 
 func serverPacketSystemHandler(data string, addr *net.Addr) int {
@@ -40,6 +40,11 @@ func serverPacketSystemHandler(data string, addr *net.Addr) int {
 		return 0
 	}
 }
+
+func SetLogger(loggerFunc func(string)) {
+	logger = loggerFunc
+}
+
 func listener(wg *sync.WaitGroup, handler func(net.PacketConn, *net.Addr, udp.Packet)) {
 	defer wg.Done()
 	for !isServerClose {
@@ -49,6 +54,13 @@ func listener(wg *sync.WaitGroup, handler func(net.PacketConn, *net.Addr, udp.Pa
 		} else if err != nil {
 			println("error on socket", err.Error())
 			continue
+		}
+		if logger != nil {
+			res, err := json.Marshal(packet)
+			if err != nil {
+				return
+			}
+			logger(string(res))
 		}
 		if packet.Type == "system" {
 			if serverPacketSystemHandler(packet.Data, addr) == 1 {

@@ -7,6 +7,6 @@ client:
 
 config:
   smooth_mode: true
-  smooth_delay: 0
+  sth_delay: 10
 
   scroll_speed: 1

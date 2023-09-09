@@ -18,7 +18,11 @@ import (
 var clientIndex int
 
 func handlerServer(udpServer net.PacketConn, addr *net.Addr, packet udp.Packet) {
-	//TODO: handle somthing
+	res, err := json.Marshal(packet)
+	if err != nil {
+		return
+	}
+	tui.AddLog(string(res))
 }
 
 func keyboardEventHandler(ev hook.Event) {
@@ -27,6 +31,7 @@ func keyboardEventHandler(ev hook.Event) {
 		fmt.Println("error:", err)
 		return
 	}
+	tui.AddLog(string(toSend))
 	udp_server.SendToClient(string(toSend), "event", clientIndex)
 }
 
@@ -77,7 +82,9 @@ func CoreServer() {
 		tui.Close()
 		os.Exit(0)
 	}()
+	udp_server.SetLogger(tui.AddLog)
 	udp_server.CreateServer(config.GetConfig().Server.Port, handlerServer)
+
 	client := udp_server.GetAllClientInfo()
 	client = append(client, "All")
 	client = append(client, "Exit")
@@ -93,9 +100,8 @@ func process(index int, title string, _ string, r rune) {
 	} else if title == "Exit" {
 		tui.Close()
 	} else if title == "All" {
-		listener.Event(keyboardEventHandlerForAll)
+		go listener.Event(keyboardEventHandlerForAll)
 	} else {
-		clientIndex = index
-		listener.Event(keyboardEventHandler)
+		go listener.Event(keyboardEventHandler)
 	}
 }
