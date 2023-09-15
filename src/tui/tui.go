@@ -1,7 +1,6 @@
 package tui
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/rivo/tview"
@@ -110,7 +109,6 @@ func RemoveMenuOption(index int) {
 
 func RemoveMenuOptionByString(str string) {
 	size := listOptions.GetItemCount()
-	AddLog(fmt.Sprintf("siize: %d", size))
 	for i := 0; i < size; i++ {
 		main, _ := listOptions.GetItemText(i)
 		if main == str {
