@@ -16,6 +16,7 @@ import (
 )
 
 var clientIndex int
+var inputLock = false
 
 func handlerServer(udpServer net.PacketConn, addr *net.Addr, packet udp.Packet) {
 	res, err := json.Marshal(packet)
@@ -42,6 +43,16 @@ func keyboardEventHandlerForAll(ev hook.Event) {
 		return
 	}
 	udp_server.SendToAllClient(string(toSend), "event")
+}
+
+func onStart() {
+	inputLock = true
+	tui.AddLog("Open event stream with Client")
+}
+
+func onEnd() {
+	inputLock = false
+	tui.AddLog("Close event stream with Client")
 }
 
 // The CoreServer function creates a UDP server, allows the user to select a client to switch on, and
@@ -99,9 +110,9 @@ func process(index int, title string, _ string, r rune) {
 		return
 	} else if title == "Exit" {
 		tui.Close()
-	} else if title == "All" {
-		go listener.Event(keyboardEventHandlerForAll)
-	} else {
-		go listener.Event(keyboardEventHandler)
+	} else if title == "All" && !inputLock {
+		go listener.Event(onStart, onEnd, keyboardEventHandlerForAll)
+	} else if !inputLock {
+		go listener.Event(onStart, onEnd, keyboardEventHandler)
 	}
 }

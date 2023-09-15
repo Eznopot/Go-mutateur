@@ -9,8 +9,9 @@ import (
 	hook "github.com/robotn/gohook"
 )
 
-func Event(handler func(hook.Event)) {
+func Event(onStart, onEnd func(), handler func(hook.Event)) {
 	evChan := hook.Start()
+	onStart()
 	defer hook.End()
 
 	for ev := range evChan {
@@ -19,6 +20,7 @@ func Event(handler func(hook.Event)) {
 		}
 		handler(ev)
 	}
+	onEnd()
 }
 
 func Do(eventString string) {
