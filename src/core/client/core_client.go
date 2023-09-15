@@ -1,6 +1,8 @@
 package core_client
 
 import (
+	"bufio"
+	"fmt"
 	"go_mutateur/src/config"
 	"go_mutateur/src/listener"
 	"go_mutateur/src/tui"
@@ -10,6 +12,17 @@ import (
 	"os/signal"
 )
 
+func warning() {
+	if config.GetConfig().Client.Address == "127.0.0.1" || config.GetConfig().Client.Address == "localhost" {
+		fmt.Println("Etes vous sur de vouloir vous connecter à un hote local ? Cela pourrais créer une boucle infini. (y/n)")
+		reader := bufio.NewReader(os.Stdin)
+		line, err := reader.ReadString('\n')
+		if err != nil || line != "y\n" {
+			return
+		}
+	}
+}
+
 func CoreClient() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
@@ -17,9 +30,11 @@ func CoreClient() {
 		<-c
 		udp_client.CloseConnection()
 	}()
-	go udp_client.CreateConnection(config.GetConfig().Client.Address, config.GetConfig().Client.Port)
+
+	warning()
 	tui.Init()
 	tui.TuiCreateView("Select option", []string{"Exit"}, []rune{rune('q')}, process)
+	go udp_client.CreateConnection(config.GetConfig().Client.Address, config.GetConfig().Client.Port)
 	go udp_client.Receive(nil, func(packet udp.Packet) {
 		tui.AddLog(packet.Data)
 		if packet.Type == "system" {
