@@ -1,4 +1,4 @@
-package core
+package core_server
 
 import (
 	"encoding/json"
@@ -24,6 +24,15 @@ func handlerServer(udpServer net.PacketConn, addr *net.Addr, packet udp.Packet) 
 		return
 	}
 	tui.AddLog(string(res))
+	if packet.Type == "system" {
+		switch data := packet.Data; data {
+		case "handshake":
+			index := len(udp_server.GetAllClientInfo()) - 1
+			tui.InsertMenuOption((*addr).String(), index)
+		case "close":
+			tui.RemoveMenuOptionByString((*addr).String())
+		}
+	}
 }
 
 func keyboardEventHandler(ev hook.Event) {
@@ -64,14 +73,12 @@ func CoreServer() {
 		tui.Close()
 		os.Exit(0)
 	}()
-	udp_server.SetLogger(tui.AddLog)
 	udp_server.CreateServer(config.GetConfig().Server.Port, handlerServer)
 
-	client := udp_server.GetAllClientInfo()
-	client = append(client, "All")
-	client = append(client, "Exit")
+	client := []string{"All", "Exit"}
+	shortcuts := []rune{rune('a'), 'q'}
 	tui.Init()
-	tui.TuiCreateView("Choisissez une option:", client, process)
+	tui.TuiCreateView("Choisissez une option:", client, shortcuts, process)
 	tui.Run()
 	udp_server.CloseServer()
 }

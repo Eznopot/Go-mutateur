@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/rivo/tview"
@@ -10,6 +11,7 @@ var app *tview.Application
 var flex *tview.Flex
 var once sync.Once
 var textViewGlobal *tview.TextView
+var listOptions *tview.List
 
 // The `Init` function initializes a new `tview.Application` and returns it. (Actually a Singleton)
 func Init() *tview.Application {
@@ -36,12 +38,10 @@ func Run() {
 // options to be displayed in the select list. Each string in the slice represents an option that the
 // user can choose from.
 //   handler: The `handler` parameter is a function that takes four arguments: int, string, string, rune
-func createSelect(prompt string, options []string, handler func(int, string, string, rune)) *tview.List {
-	listOptions := tview.NewList()
+func createSelect(prompt string, options []string, shortcuts []rune, handler func(int, string, string, rune)) *tview.List {
+	listOptions = tview.NewList()
 	listOptions.ShowSecondaryText(false)
-	for index, option := range options {
-		listOptions.AddItem(option, "", rune(49+index), nil)
-	}
+	AddMenuOption(options, shortcuts)
 
 	listOptions.SetSelectedFunc(handler)
 	return listOptions
@@ -68,10 +68,10 @@ func createText() *tview.TextView {
 // options for the menu. Each string in the slice represents an option that the user can select from
 // the menu.
 //   handler: The `handler` parameter is a function that takes four arguments: int, string, string, rune
-func TuiCreateView(prompt string, options []string, handler func(int, string, string, rune)) {
+func TuiCreateView(prompt string, options []string, shortcuts []rune, handler func(int, string, string, rune)) {
 	flexMenu := tview.NewFlex()
 	flexMenu.Box.SetBorder(true).SetTitle("Menu")
-	flexMenu.AddItem(createSelect(prompt, options, handler), 0, 1, true)
+	flexMenu.AddItem(createSelect(prompt, options, shortcuts, handler), 0, 1, true)
 
 	boxPrincipal := tview.NewFlex()
 	boxPrincipal.SetBorder(true).SetTitle("Screen")
@@ -79,7 +79,7 @@ func TuiCreateView(prompt string, options []string, handler func(int, string, st
 	boxPrincipal.AddItem(textViewGlobal, 0, 1, false)
 
 	flex.AddItem(flexMenu, 0, 1, true)
-	flex.AddItem(boxPrincipal, 0, 1, false)
+	flex.AddItem(boxPrincipal, 0, 4, false)
 }
 
 var logs []string
@@ -102,6 +102,32 @@ func AddLog(str string) {
 		logStr += logs[len(logs)-i-1] + "\n"
 	}
 	textViewGlobal.SetText(logStr)
+}
+
+func RemoveMenuOption(index int) {
+	listOptions.RemoveItem(index)
+}
+
+func RemoveMenuOptionByString(str string) {
+	size := listOptions.GetItemCount()
+	AddLog(fmt.Sprintf("siize: %d", size))
+	for i := 0; i < size; i++ {
+		main, _ := listOptions.GetItemText(i)
+		if main == str {
+			listOptions.RemoveItem(i)
+			return
+		}
+	}
+}
+
+func AddMenuOption(options []string, shortcuts []rune) {
+	for index, option := range options {
+		listOptions.AddItem(option, "", shortcuts[index], nil)
+	}
+}
+
+func InsertMenuOption(option string, index int) {
+	listOptions.InsertItem(index, option, "", rune(49+index), nil)
 }
 
 // The Close function stops the application.

@@ -29,17 +29,15 @@ var once sync.Once
 func serverPacketSystemHandler(data string, addr *net.Addr) int {
 	switch data := data; data {
 	case "handshake":
-		fmt.Println("New client connected on:", *addr)
 		if addrs == nil {
 			var tmp []*net.Addr
 			tmp = append(tmp, addr)
 			addrs = tmp
-			return 1
+			return 0
 		}
 		addrs = (append(addrs, addr))
 		return 0
 	case "close":
-		fmt.Println("Client on:", *addr, "disconnected")
 		for i, tmpAddr := range addrs {
 			if (*addr).String() == (*tmpAddr).String() {
 				addrs = append(addrs[:i], addrs[i+1:]...)
@@ -89,7 +87,6 @@ func listener(wg *sync.WaitGroup, handler func(net.PacketConn, *net.Addr, udp.Pa
 			if serverPacketSystemHandler(packet.Data, addr) == 1 {
 				return
 			}
-			continue
 		}
 		handler(*instance, addr, packet)
 	}
@@ -127,18 +124,6 @@ func CreateServer(port string, handler func(net.PacketConn, *net.Addr, udp.Packe
 			log.Fatal(err)
 		}
 		instance = &udpServer
-
-		//wait for the first connection
-		fmt.Println("Waiting for the first connection...")
-		packet, addr, err := readFromSocket()
-		if err != nil {
-			log.Fatal("Error when reading on the first connection:", err.Error())
-		}
-		serverPacketSystemHandler(packet.Data, addr)
-		if err != nil {
-			log.Fatal("error on json:", err.Error())
-		}
-
 		wg.Add(1)
 		go listener(&wg, handler)
 	})

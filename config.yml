@@ -3,7 +3,7 @@ server:
 
 client:
   port: 8082
-  address: 192.168.0.37
+  address: 127.0.0.1
 
 config:
   smooth_mode: true

@@ -2,7 +2,6 @@ package udp_client
 
 import (
 	"encoding/json"
-	"fmt"
 	"go_mutateur/src/udp"
 	"log"
 	"net"
@@ -22,7 +21,6 @@ var once sync.Once
 //   port (string): The "port" parameter is the port number on which the UDP connection will be
 // established. It is a string representing the port number.
 func CreateConnection(address, port string) *net.UDPConn {
-	fmt.Println("Start new connection...")
 	once.Do(func() {
 		udpServer, err := net.ResolveUDPAddr("udp", address+":"+port)
 
@@ -65,7 +63,7 @@ func clientPacketSystemHandler(data string) int {
 	switch data := data; data {
 	case "close":
 		CloseConnection()
-		return 1
+		return 0
 	default:
 		return 0
 	}
@@ -112,7 +110,6 @@ func Receive(wg *sync.WaitGroup, handler func(udp.Packet)) {
 			if clientPacketSystemHandler(packet.Data) == 1 {
 				return
 			}
-			continue
 		}
 		handler(packet)
 	}
