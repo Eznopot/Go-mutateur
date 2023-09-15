@@ -28,14 +28,17 @@ func Run() {
 	}
 }
 
-// The function "createSelect" creates a selectable list with options and a prompt.
+// The function creates a selectable list with options and shortcuts, and calls a handler function when
+// an option is selected.
 //
 // Args:
-//   prompt (string): A string that represents the prompt or question to be displayed before the list
-// of options.
-//   options ([]string): The `options` parameter is a slice of strings that represents the list of
-// options to be displayed in the select list. Each string in the slice represents an option that the
-// user can choose from.
+//   prompt (string): The prompt is a string that will be displayed at the top of the select menu,
+// prompting the user to make a selection.
+//   options ([]string): A slice of strings representing the options to be displayed in the select
+// list.
+//   shortcuts ([]rune): The `shortcuts` parameter is a slice of `rune` values that represents the
+// keyboard shortcuts for each option in the `options` slice. Each shortcut corresponds to an option in
+// the `options` slice at the same index. For example, if the `options` slice has three elements and
 //   handler: The `handler` parameter is a function that takes four arguments: int, string, string, rune
 func createSelect(prompt string, options []string, shortcuts []rune, handler func(int, string, string, rune)) *tview.List {
 	listOptions = tview.NewList()
@@ -62,11 +65,15 @@ func createText() *tview.TextView {
 //
 // Args:
 //   prompt (string): The prompt is a string that represents the message or question displayed to the
-// user in the menu. It prompts the user to make a selection or input some information.
-//   options ([]string): The `options` parameter is a slice of strings that represents the available
-// options for the menu. Each string in the slice represents an option that the user can select from
-// the menu.
-//   handler: The `handler` parameter is a function that takes four arguments: int, string, string, rune
+// user before they make a selection from the menu. It serves as a prompt or instruction for the user
+// to follow.
+//   options ([]string): The `options` parameter is a slice of strings that represents the menu options
+// that will be displayed to the user. Each string in the slice represents an option in the menu.
+//   shortcuts ([]rune): The `shortcuts` parameter is a slice of `rune` values that represents the
+// keyboard shortcuts for each option in the menu. Each `rune` value corresponds to a specific key on
+// the keyboard. For example, if you want to assign the shortcut "A" to the first option,
+//   handler: The `handler` parameter is a function that will be called when an option is selected in
+// the menu. It takes four arguments: int, string, string, rune
 func TuiCreateView(prompt string, options []string, shortcuts []rune, handler func(int, string, string, rune)) {
 	flexMenu := tview.NewFlex()
 	flexMenu.Box.SetBorder(true).SetTitle("Menu")
@@ -103,10 +110,21 @@ func AddLog(str string) {
 	textViewGlobal.SetText(logStr)
 }
 
+// The function removes a menu option at a specified index.
+//
+// Args:
+//   index (int): The index parameter is an integer that represents the position of the menu option
+// that you want to remove. It is used to identify the specific menu option that you want to remove
+// from the list.
 func RemoveMenuOption(index int) {
 	listOptions.RemoveItem(index)
 }
 
+// The function removes a menu option from a list based on a given string.
+//
+// Args:
+//   str (string): The parameter `str` is a string that represents the menu option that needs to be
+// removed from the `listOptions` list.
 func RemoveMenuOptionByString(str string) {
 	size := listOptions.GetItemCount()
 	for i := 0; i < size; i++ {
@@ -118,12 +136,26 @@ func RemoveMenuOptionByString(str string) {
 	}
 }
 
+// The function "AddMenuOption" adds menu options with corresponding shortcuts to a list.
+//
+// Args:
+//   options ([]string): A slice of strings representing the menu options. Each string represents a
+// different option in the menu.
+//   shortcuts ([]rune): The `shortcuts` parameter is a slice of `rune` types. Each `rune` represents a
+// keyboard shortcut for a menu option.
 func AddMenuOption(options []string, shortcuts []rune) {
 	for index, option := range options {
 		listOptions.AddItem(option, "", shortcuts[index], nil)
 	}
 }
 
+// The function InsertMenuOption inserts a menu option at a specified index in a list.
+//
+// Args:
+//   option (string): The option parameter is a string that represents the menu option that you want to
+// insert.
+//   index (int): The index parameter is an integer that represents the position at which the menu
+// option should be inserted.
 func InsertMenuOption(option string, index int) {
 	listOptions.InsertItem(index, option, "", rune(49+index), nil)
 }
