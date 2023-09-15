@@ -27,6 +27,8 @@ client:
 config:
   smooth_mode: false //permet de rendre le déplacement de la souris plus "humain" (WIP)
   smooth_delay: 10 //permet de gerer le délais des deplacements si l'option si dessus est défini sur true
+
+  scroll_speed: 1 //vitesse du scroll
 ```
 
 ## Comment utiliser
