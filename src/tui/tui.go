@@ -28,6 +28,16 @@ func Run() {
 	}
 }
 
+// The FocusMenu function sets the focus on the first item in a flex container.
+func FocusMenu() {
+	app.SetFocus(flex.GetItem(0))
+}
+
+// The function `FocusScreen` sets the focus on the second item in a flex container.
+func FocusScreen() {
+	app.SetFocus(flex.GetItem(1))
+}
+
 // The function creates a selectable list with options and shortcuts, and calls a handler function when
 // an option is selected.
 //
@@ -120,20 +130,27 @@ func RemoveMenuOption(index int) {
 	listOptions.RemoveItem(index)
 }
 
-// The function removes a menu option from a list based on a given string.
+// The function `RemoveMenuOptionByString` removes a menu option from a list based on a given string
+// and returns the index of the removed item.
 //
 // Args:
-//   str (string): The parameter `str` is a string that represents the menu option that needs to be
-// removed from the `listOptions` list.
-func RemoveMenuOptionByString(str string) {
+//   str (string): The parameter "str" is a string that represents the menu option that needs to be
+// removed from the listOptions.
+//
+// Returns:
+//   an integer value. If the menu option specified by the input string is found and successfully
+// removed, the function returns the index of the removed item. If the menu option is not found, the
+// function returns -1.
+func RemoveMenuOptionByString(str string) int {
 	size := listOptions.GetItemCount()
 	for i := 0; i < size; i++ {
 		main, _ := listOptions.GetItemText(i)
 		if main == str {
 			listOptions.RemoveItem(i)
-			return
+			return i
 		}
 	}
+	return -1
 }
 
 // The function "AddMenuOption" adds menu options with corresponding shortcuts to a list.

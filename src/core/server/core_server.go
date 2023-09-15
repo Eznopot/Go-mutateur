@@ -16,7 +16,6 @@ import (
 )
 
 var clientIndex int
-var inputLock = false
 
 func handlerServer(udpServer net.PacketConn, addr *net.Addr, packet udp.Packet) {
 	res, err := json.Marshal(packet)
@@ -30,7 +29,10 @@ func handlerServer(udpServer net.PacketConn, addr *net.Addr, packet udp.Packet) 
 			index := len(udp_server.GetAllClientInfo()) - 1
 			tui.InsertMenuOption((*addr).String(), index)
 		case "close":
-			tui.RemoveMenuOptionByString((*addr).String())
+			index := tui.RemoveMenuOptionByString((*addr).String())
+			if clientIndex == index {
+				tui.FocusMenu()
+			}
 		}
 	}
 }
@@ -55,13 +57,13 @@ func keyboardEventHandlerForAll(ev hook.Event) {
 }
 
 func onStart() {
-	inputLock = true
+	tui.FocusScreen()
 	tui.AddLog("Open event stream with Client")
 }
 
 func onEnd() {
-	inputLock = false
 	tui.AddLog("Close event stream with Client")
+	tui.FocusMenu()
 }
 
 func CoreServer() {
@@ -88,9 +90,9 @@ func process(index int, title string, _ string, r rune) {
 		return
 	} else if title == "Exit" {
 		tui.Close()
-	} else if title == "All" && !inputLock {
+	} else if title == "All" {
 		go listener.Event(onStart, onEnd, keyboardEventHandlerForAll)
-	} else if !inputLock {
+	} else {
 		go listener.Event(onStart, onEnd, keyboardEventHandler)
 	}
 }
