@@ -13,6 +13,14 @@ var conn *net.UDPConn
 var isConnClose = false
 var once sync.Once
 
+// The function `CreateConnection` creates a new UDP connection and sends a handshake message.
+//
+// Args:
+//   address (string): The "address" parameter is the IP address or hostname of the server you want to
+// connect to. The "port" parameter is the port number on which the server is listening for UDP
+// connections.
+//   port (string): The "port" parameter is the port number on which the UDP connection will be
+// established. It is a string representing the port number.
 func CreateConnection(address, port string) *net.UDPConn {
 	fmt.Println("Start new connection...")
 	once.Do(func() {
@@ -44,6 +52,15 @@ func CreateConnection(address, port string) *net.UDPConn {
 	return conn
 }
 
+// The function `clientPacketSystemHandler` handles different types of client packets and returns a
+// value indicating whether the connection should be closed or not.
+//
+// Args:
+//   data (string): The parameter "data" is a string that represents the packet received from the
+// client.
+//
+// Returns:
+//   The function `clientPacketSystemHandler` returns an integer value.
 func clientPacketSystemHandler(data string) int {
 	switch data := data; data {
 	case "close":
@@ -54,6 +71,8 @@ func clientPacketSystemHandler(data string) int {
 	}
 }
 
+// The function `readFromConn` reads data from a connection, unmarshals it into a UDP packet, and
+// returns the packet along with any errors encountered.
 func readFromConn() (udp.Packet, error) {
 	var packet udp.Packet
 	received := make([]byte, 2048)
@@ -73,6 +92,14 @@ func readFromConn() (udp.Packet, error) {
 	return packet, nil
 }
 
+// The Receive function continuously reads packets from a connection and passes them to a handler
+// function until the connection is closed.
+//
+// Args:
+//   wg: The "wg" parameter is a pointer to a sync.WaitGroup. It is used to synchronize the completion
+// of multiple goroutines.
+//   handler: The "handler" parameter is a function that takes a single argument of type "udp.Packet".
+// This function will be called with each received packet that is not of type "system".
 func Receive(wg *sync.WaitGroup, handler func(udp.Packet)) {
 	for !isConnClose {
 		packet, err := readFromConn()
@@ -94,6 +121,7 @@ func Receive(wg *sync.WaitGroup, handler func(udp.Packet)) {
 	}
 }
 
+// The CloseConnection function sends a close packet over UDP and closes the connection.
 func CloseConnection() {
 	packet := udp.Packet{
 		Data: "close",

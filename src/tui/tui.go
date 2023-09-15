@@ -11,6 +11,7 @@ var flex *tview.Flex
 var once sync.Once
 var textViewGlobal *tview.TextView
 
+// The `Init` function initializes a new `tview.Application` and returns it. (Actually a Singleton)
 func Init() *tview.Application {
 	once.Do(func() {
 		app = tview.NewApplication()
@@ -19,12 +20,22 @@ func Init() *tview.Application {
 	return app
 }
 
+// The Run function sets the root of the application and runs it, panicking if there is an error.
 func Run() {
 	if err := app.SetRoot(flex, true).Run(); err != nil {
 		panic(err)
 	}
 }
 
+// The function "createSelect" creates a selectable list with options and a prompt.
+//
+// Args:
+//   prompt (string): A string that represents the prompt or question to be displayed before the list
+// of options.
+//   options ([]string): The `options` parameter is a slice of strings that represents the list of
+// options to be displayed in the select list. Each string in the slice represents an option that the
+// user can choose from.
+//   handler: The `handler` parameter is a function that takes four arguments: int, string, string, rune
 func createSelect(prompt string, options []string, handler func(int, string, string, rune)) *tview.List {
 	listOptions := tview.NewList()
 	listOptions.ShowSecondaryText(false)
@@ -36,6 +47,7 @@ func createSelect(prompt string, options []string, handler func(int, string, str
 	return listOptions
 }
 
+// The function `createText()` returns a new `tview.TextView` object with certain settings applied.
 func createText() *tview.TextView {
 	textViewGlobal = tview.NewTextView().
 		SetDynamicColors(true).
@@ -47,6 +59,15 @@ func createText() *tview.TextView {
 	return textViewGlobal
 }
 
+// The function `TuiCreateView` creates a TUI (Text User Interface) view with a menu and a screen.
+//
+// Args:
+//   prompt (string): The prompt is a string that represents the message or question displayed to the
+// user in the menu. It prompts the user to make a selection or input some information.
+//   options ([]string): The `options` parameter is a slice of strings that represents the available
+// options for the menu. Each string in the slice represents an option that the user can select from
+// the menu.
+//   handler: The `handler` parameter is a function that takes four arguments: int, string, string, rune
 func TuiCreateView(prompt string, options []string, handler func(int, string, string, rune)) {
 	flexMenu := tview.NewFlex()
 	flexMenu.Box.SetBorder(true).SetTitle("Menu")
@@ -63,6 +84,12 @@ func TuiCreateView(prompt string, options []string, handler func(int, string, st
 
 var logs []string
 
+// The AddLog function appends a string to a log array, removes the oldest log if the array exceeds 20
+// elements, and updates a text view with the log messages.
+//
+// Args:
+//   str (string): The parameter "str" is a string that represents the log message that needs to be
+// added to the logs.
 func AddLog(str string) {
 	var logStr string
 
@@ -77,6 +104,7 @@ func AddLog(str string) {
 	textViewGlobal.SetText(logStr)
 }
 
+// The Close function stops the application.
 func Close() {
 	app.Stop()
 }

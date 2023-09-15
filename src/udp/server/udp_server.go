@@ -15,6 +15,17 @@ var isServerClose = false
 var logger func(string)
 var once sync.Once
 
+// The function `serverPacketSystemHandler` handles different types of data received from clients and
+// performs corresponding actions.
+//
+// Args:
+//   data (string): The `data` parameter is a string that represents the type of packet received from
+// the client. It can have two possible values: "handshake" or "close".
+//   addr: The `addr` parameter is a pointer to a `net.Addr` object. It represents the network address
+// of the client that sent the packet.
+//
+// Returns:
+//   an integer value.
 func serverPacketSystemHandler(data string, addr *net.Addr) int {
 	switch data := data; data {
 	case "handshake":
@@ -41,10 +52,22 @@ func serverPacketSystemHandler(data string, addr *net.Addr) int {
 	}
 }
 
+// The SetLogger function sets the logger function to be used for logging messages.
+//
+// Args:
+//   loggerFunc: The loggerFunc parameter is a function that takes a string as input and does not
+// return anything.
 func SetLogger(loggerFunc func(string)) {
 	logger = loggerFunc
 }
 
+// The function `listener` reads packets from a socket and calls a handler function to process the
+// packets, while also handling system packets separately.
+//
+// Args:
+//   wg: The parameter `wg` is of type `*sync.WaitGroup`. It is used to synchronize the goroutines and
+// wait for them to finish before exiting the function.
+//   handler: The `handler` parameter is a function that takes three arguments:
 func listener(wg *sync.WaitGroup, handler func(net.PacketConn, *net.Addr, udp.Packet)) {
 	defer wg.Done()
 	for !isServerClose {
@@ -72,6 +95,8 @@ func listener(wg *sync.WaitGroup, handler func(net.PacketConn, *net.Addr, udp.Pa
 	}
 }
 
+// The function `readFromSocket` reads data from a socket, unmarshals it into a UDP packet, and returns
+// the packet, the address it was received from, and any error that occurred.
 func readFromSocket() (udp.Packet, *net.Addr, error) {
 	var packet udp.Packet
 	buf := make([]byte, 2048)
@@ -87,6 +112,13 @@ func readFromSocket() (udp.Packet, *net.Addr, error) {
 	return packet, &addr, nil
 }
 
+// The function `CreateServer` creates a UDP server on the specified port and waits for the first
+// connection before starting a listener goroutine.
+//
+// Args:
+//   port (string): The `port` parameter is a string that represents the port number on which the
+// server will listen for incoming UDP packets.
+//   handler: The handler parameter is a function that takes three arguments:
 func CreateServer(port string, handler func(net.PacketConn, *net.Addr, udp.Packet)) *sync.WaitGroup {
 	var wg sync.WaitGroup
 	once.Do(func() {
@@ -113,6 +145,14 @@ func CreateServer(port string, handler func(net.PacketConn, *net.Addr, udp.Packe
 	return &wg
 }
 
+// The function sends a packet with a specified type and data to all clients connected to a UDP server.
+//
+// Args:
+//   str (string): The "str" parameter is a string that represents the data you want to send to all
+// clients. It could be any information or message that you want to transmit.
+//   packetType (string): The `packetType` parameter is a string that represents the type of packet
+// being sent. It could be used to differentiate between different types of messages or data being sent
+// to the clients.
 func SendToAllClient(str, packetType string) {
 	if instance == nil {
 		log.Fatal("instance of UDP server is null")
@@ -132,6 +172,15 @@ func SendToAllClient(str, packetType string) {
 	}
 }
 
+// The function sends a packet to a client using a UDP server instance.
+//
+// Args:
+//   str (string): The `str` parameter is a string that represents the data to be sent to the client.
+// It could be any information or message that you want to send.
+//   packetType (string): The `packetType` parameter is a string that represents the type of the packet
+// being sent to the client. It could be any string value that you define to categorize the packet.
+//   index (int): The "index" parameter is an integer that represents the index of the address in the
+// "addrs" slice. It is used to determine the address to which the packet should be sent.
 func SendToClient(str, packetType string, index int) {
 	if instance == nil {
 		log.Fatal("instance of UDP server is null")
@@ -148,6 +197,10 @@ func SendToClient(str, packetType string, index int) {
 	(*instance).WriteTo(res, *(addrs[index]))
 }
 
+// The function GetAllClientInfo returns a list of strings containing the addresses of all clients.
+//
+// Returns:
+//   a list of strings, which contains the string representation of each address in the `addrs` slice.
 func GetAllClientInfo() []string {
 	var list []string
 	for _, addr := range addrs {
@@ -156,6 +209,7 @@ func GetAllClientInfo() []string {
 	return list
 }
 
+// The CloseServer function closes the server and sends a "close" message to all clients.
 func CloseServer() {
 	SendToAllClient("close", "system")
 	isServerClose = true

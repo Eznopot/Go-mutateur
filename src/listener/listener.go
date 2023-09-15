@@ -9,6 +9,18 @@ import (
 	hook "github.com/robotn/gohook"
 )
 
+// The `Event` function takes three function parameters, `onStart`, `onEnd`, and `handler`, and sets up
+// an event loop that listens for keyboard events and calls the appropriate functions based on the
+// events received.
+//
+// Args:
+//   `onStart`: The onStart parameter is a function that will be called at the beginning of the Event
+// function. It is typically used to set up any necessary resources or perform any initialization tasks
+// before the event loop starts.
+//   onEnd: The `onEnd` parameter is a function that will be called when the event loop ends. It is
+// typically used to clean up any resources or perform any necessary final actions.
+//   handler: The `handler` parameter is a function that takes a single argument of type `hook.Event`.
+// This function is responsible for handling the events received from the `evChan` channel.
 func Event(onStart, onEnd func(), handler func(hook.Event)) {
 	evChan := hook.Start()
 	onStart()
@@ -23,6 +35,13 @@ func Event(onStart, onEnd func(), handler func(hook.Event)) {
 	onEnd()
 }
 
+// The function Do takes in an event string, parses it into a `hook.Event` struct, and performs
+// different actions based on the kind of event.
+//
+// Args:
+//   eventString (string): The `eventString` parameter is a string that represents a JSON object (hook.Event)
+// containing information about an event. This string is used to deserialize the event object using the
+// `json.Unmarshal` function.
 func Do(eventString string) {
 	var event hook.Event
 	err := json.Unmarshal([]byte(eventString), &event)

@@ -32,6 +32,8 @@ type conf struct {
 	Config config     `yaml:"config"`
 }
 
+// The GetConfig function reads a YAML file, unmarshals it into a struct, and returns an instance of
+// that struct.
 func GetConfig() *conf {
 	once.Do(func() {
 		var confTmp conf
