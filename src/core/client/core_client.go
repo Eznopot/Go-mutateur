@@ -34,8 +34,9 @@ func CoreClient() {
 	warning()
 	tui.Init()
 	tui.TuiCreateView("Select option", []string{"Exit"}, []rune{rune('q')}, process)
-	go udp_client.CreateConnection(config.GetConfig().Client.Address, config.GetConfig().Client.Port)
-	go udp_client.Receive(nil, func(packet udp.Packet) {
+	go tui.Run()
+	udp_client.CreateConnection(config.GetConfig().Client.Address, config.GetConfig().Client.Port)
+	udp_client.Receive(nil, func(packet udp.Packet) {
 		tui.AddLog(packet.Data)
 		if packet.Type == "system" {
 			switch data := packet.Data; data {
@@ -48,7 +49,6 @@ func CoreClient() {
 			listener.Do(packet.Data)
 		}
 	})
-	tui.Run()
 }
 
 func process(index int, main, secondary string, r rune) {

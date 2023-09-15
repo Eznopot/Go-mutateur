@@ -157,6 +157,37 @@ func SendToAllClient(str, packetType string) {
 	}
 }
 
+// The function sends a UDP packet to all clients except for the client specified by the given address.
+//
+// Args:
+//   str (string): The `str` parameter is a string that represents the data to be sent to the clients.
+// It could be any information or message that you want to send.
+//   packetType (string): The `packetType` parameter is a string that represents the type of the packet
+// being sent. It could be any value that is meaningful in the context of your application, such as
+// "message", "data", "request", etc.
+//   addr: The `addr` parameter is a pointer to a `net.Addr` object. It represents the address of a
+// client that should be excluded from the list of clients to which the packet should be sent.
+func SendToAllExcludingItselfClient(str, packetType string, addr *net.Addr) {
+	if instance == nil {
+		log.Fatal("instance of UDP server is null")
+		return
+	}
+	toSend := udp.Packet{
+		Type: packetType,
+		Data: str,
+	}
+
+	res, err := json.Marshal(toSend)
+	if err != nil {
+		log.Fatal("error on json:", err.Error())
+	}
+	for _, elemAddr := range addrs {
+		if addr != elemAddr {
+			(*instance).WriteTo(res, *addr)
+		}
+	}
+}
+
 // The function sends a packet to a client using a UDP server instance.
 //
 // Args:
