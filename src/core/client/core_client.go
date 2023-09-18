@@ -6,10 +6,11 @@ import (
 	"go_mutateur/src/config"
 	"go_mutateur/src/listener"
 	"go_mutateur/src/tui"
-	"go_mutateur/src/udp"
-	udp_client "go_mutateur/src/udp/client"
 	"os"
 	"os/signal"
+
+	"github.com/Eznopot/udp"
+	udp_client "github.com/Eznopot/udp/client"
 )
 
 func warning() {

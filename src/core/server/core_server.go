@@ -6,11 +6,12 @@ import (
 	"go_mutateur/src/config"
 	"go_mutateur/src/listener"
 	"go_mutateur/src/tui"
-	"go_mutateur/src/udp"
-	udp_server "go_mutateur/src/udp/server"
 	"net"
 	"os"
 	"os/signal"
+
+	"github.com/Eznopot/udp"
+	udp_server "github.com/Eznopot/udp/server"
 
 	hook "github.com/robotn/gohook"
 )
