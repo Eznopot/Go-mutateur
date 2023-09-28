@@ -7,6 +7,8 @@ client:
 
 config:
   smooth_mode: true
-  sth_delay: 10
-
+  smooth_delay: 10
   scroll_speed: 1
+
+developpement:
+  replication: false

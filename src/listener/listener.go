@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"go_mutateur/src/config"
+	"go_mutateur/src/tui"
 
 	"github.com/go-vgo/robotgo"
 	hook "github.com/robotn/gohook"
@@ -14,12 +15,18 @@ import (
 // events received.
 //
 // Args:
-//   `onStart`: The onStart parameter is a function that will be called at the beginning of the Event
+//
+//	`onStart`: The onStart parameter is a function that will be called at the beginning of the Event
+//
 // function. It is typically used to set up any necessary resources or perform any initialization tasks
 // before the event loop starts.
-//   onEnd: The `onEnd` parameter is a function that will be called when the event loop ends. It is
+//
+//	onEnd: The `onEnd` parameter is a function that will be called when the event loop ends. It is
+//
 // typically used to clean up any resources or perform any necessary final actions.
-//   handler: The `handler` parameter is a function that takes a single argument of type `hook.Event`.
+//
+//	handler: The `handler` parameter is a function that takes a single argument of type `hook.Event`.
+//
 // This function is responsible for handling the events received from the `evChan` channel.
 func Event(onStart, onEnd func(), handler func(hook.Event)) {
 	evChan := hook.Start()
@@ -28,6 +35,8 @@ func Event(onStart, onEnd func(), handler func(hook.Event)) {
 
 	for ev := range evChan {
 		if ev.Kind == hook.KeyDown && ev.Keychar == 27 {
+			tui.AddLog("---------------------------------------")
+			onEnd()
 			return
 		}
 		handler(ev)
@@ -39,7 +48,9 @@ func Event(onStart, onEnd func(), handler func(hook.Event)) {
 // different actions based on the kind of event.
 //
 // Args:
-//   eventString (string): The `eventString` parameter is a string that represents a JSON object (hook.Event)
+//
+//	eventString (string): The `eventString` parameter is a string that represents a JSON object (hook.Event)
+//
 // containing information about an event. This string is used to deserialize the event object using the
 // `json.Unmarshal` function.
 func Do(eventString string) {
@@ -50,9 +61,9 @@ func Do(eventString string) {
 		return
 	}
 	if event.Kind == hook.KeyDown {
-		robotgo.KeyDown(string(event.Keychar))
+		robotgo.KeyDown(hook.RawcodetoKeychar(event.Rawcode))
 	} else if event.Kind == hook.KeyUp {
-		robotgo.KeyUp(string(event.Keychar))
+		robotgo.KeyUp(hook.RawcodetoKeychar(event.Rawcode))
 	} else if event.Kind == hook.MouseDown {
 		var clickAction string
 		if event.Button == 1 {

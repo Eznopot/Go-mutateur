@@ -47,7 +47,9 @@ func CoreClient() {
 				break
 			}
 		} else {
-			listener.Do(packet.Data)
+			if config.GetConfig().Developpement.Replication {
+				listener.Do(packet.Data)
+			}
 		}
 	})
 }

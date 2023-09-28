@@ -1,8 +1,8 @@
 package config
 
 import (
-	"io/ioutil"
 	"log"
+	"os"
 	"sync"
 
 	"gopkg.in/yaml.v2"
@@ -26,10 +26,15 @@ type config struct {
 	ScrollSpeed int  `yaml:"scroll_speed"`
 }
 
+type Developpement struct {
+	Replication bool `yaml:"replication"`
+}
+
 type conf struct {
-	Server serverConf `yaml:"server"`
-	Client clientConf `yaml:"client"`
-	Config config     `yaml:"config"`
+	Server        serverConf    `yaml:"server"`
+	Client        clientConf    `yaml:"client"`
+	Config        config        `yaml:"config"`
+	Developpement Developpement `yaml:"developpement"`
 }
 
 // The GetConfig function reads a YAML file, unmarshals it into a struct, and returns an instance of
@@ -37,7 +42,7 @@ type conf struct {
 func GetConfig() *conf {
 	once.Do(func() {
 		var confTmp conf
-		yamlFile, err := ioutil.ReadFile("config.yml")
+		yamlFile, err := os.ReadFile("config.yml")
 		if err != nil {
 			log.Printf("yamlFile.Get err   #%v ", err)
 		}
