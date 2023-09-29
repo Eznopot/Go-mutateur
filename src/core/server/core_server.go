@@ -44,9 +44,7 @@ func keyboardEventHandler(ev hook.Event) {
 		fmt.Println("error:", err)
 		return
 	}
-
-	tui.AddLog(string(toSend) + "--" + string(hook.RawcodetoKeychar(ev.Rawcode)))
-
+	tui.AddLog(string(toSend))
 	udp_server.SendToClient(string(toSend), "event", clientIndex)
 }
 
